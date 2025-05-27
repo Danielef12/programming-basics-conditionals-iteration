@@ -13,31 +13,26 @@ expense = []
 print("Keep track of your expens: ")
 
 # User add manually all expense for every category in every day
-for day in range(1,travel_day + 1): # for every day on travel days
-    print(f"--- Expense for day {day} ---") 
+total_expense = 0
+for day in range(travel_day): # for every day on travel days
+    print(f"--- Expense for day {day + 1} ---") 
     expense_day = {}    # dictionary to which {"day 1": {"category": expense}} will be added
-    for category in categories:     # For each category in the category list
-        
+    total_day_expence = 0
+    for category in categories:     # For each category in the category list      
         while True:    
             try:        
                 amount = float(input(f"Insert the amount for {category}: ")) # Insert the amount of the category
                 expense_day[category] = amount     # day[category] = add expense value
+                total_day_expence += amount
+                total_expense += amount
                 break
             except ValueError:      # If I type something other than a number
                  print("Ivalid value, please check.")
     expense.append(expense_day)     # the dictionary with {"category" : expense} will be added to the expense list. Each dictionary is equivalent to one day
-    
+    print(f"Today you have spent: {total_day_expence:.2f}€")
 
 print("total expense") # Calculate total daily spending by adding all categories
-total = 0
-for i, day in enumerate(expense, 1): 
-    total_day = 0       
-    for expence in day.values():
-        total_day += expence
-        total += expence
-    print(f"Day {i}: {day}.")
-    print(f"Today you have spent: {total_day}€.\n")
-    
+
 
 modify_expenses = input("You want to change some expenses? (y/n): ")
 
@@ -46,41 +41,34 @@ while modify_expenses.lower() == "y":
      category = input("Enter the category to edit: ").lower()
 
      if day >= 0 and day < len(expense) and category in expense[day]:
+        old_expense = expense[day][category]
         new_expense = float(input(f"Enter the new expense for {category} of the day {day + 1}: "))
+        total_day_expence = total_day_expence - old_expense + new_expense
+        total_expense = total_expense - old_expense + new_expense
         expense[day][category] = new_expense
         print("Modify correctly.")
-
-        total = 0
-        for i, day in enumerate(expense, 1): 
-            total_day = 0       
-            for expenses in day.values():
-                total_day += expenses
-                total += expenses
+        
+        for i, day in enumerate(expense, 1):      # Recap expences in {day: categories} 
             print(f"Day {i}: {day}.")
-            print(f"Today you have spent: {total_day}€.\n")
-            
+                        
      else:
         print("Day or category wrong, try again")
      modify_expenses = input("Do you want to change other values? (y/n): ")
 
 
 
-# sum of every expenses of all category
-total_categories = {category: 0 for category in categories} # I create a dictionary where each key is a category and each value is the total expenses of that category
-total_general = 0
-
+total_categories = {} # Sum of every expenses of all category
 for day in expense:
     for category in categories:
-        total_categories[category] += day[category]
+        total_categories[category] = total_categories.setdefault(category, 0) + day[category]
 
 print("\n--- TOTAL EXPENSE CATEGORIES ---")        
 for category, total in total_categories.items():      
-    print(f"- {category}: {total}€")
+    print(f"- {category}: {total:.2f}€")
+        
+print(f"\nYou spent a total of: {total_expense:.2f}€")
 
-         
-print(f"\nYou spent a total of: {total:.2f}€")
-
-remainder = budget_amount - total
+remainder = budget_amount - total_expense
 if remainder > 0:
      print(f"Available budget: {remainder:.2f}€\n")
 elif remainder == 0:
